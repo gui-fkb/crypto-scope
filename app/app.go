@@ -2,7 +2,6 @@ package app
 
 import (
 	"crypto-scrope/settings"
-	"image/color"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/image"
@@ -18,64 +17,34 @@ type App struct {
 func New() *App {
 	// construct a new container that will serve as the root of the UI hierarchy
 	rootContainer := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor)),
+		widget.ContainerOpts.BackgroundImage(
+			image.NewNineSliceColor(settings.BackgroundColor),
+		),
 
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(2),
-			widget.GridLayoutOpts.Padding(widget.NewInsetsSimple(30)),
-			widget.GridLayoutOpts.Spacing(20, 10),
-			widget.GridLayoutOpts.Stretch([]bool{true, false}, []bool{false, true}),
+			widget.GridLayoutOpts.Spacing(0, 0),
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch(
+				[]bool{true, true, true},
+				[]bool{false, true, false}),
 		)),
 	)
 
-	// now let's contruct the inner containers
-	innerContainer1 := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor2)),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.MinSize(50, 50),
+	contentContainer := widget.NewContainer(
+		widget.ContainerOpts.BackgroundImage(
+			image.NewNineSliceColor(settings.BackgroundColor),
+		),
+		widget.ContainerOpts.Layout(
+			widget.NewAnchorLayout(),
 		),
 	)
 
-	innerContainer2 := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.Red)),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.MinSize(50, 50),
-		),
-	)
-
-	innerContainer3 := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.Green)),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.GridLayoutData{
-				HorizontalPosition: widget.GridLayoutPositionCenter,
-				VerticalPosition:   widget.GridLayoutPositionCenter,
-				MaxWidth:           100,
-				MaxHeight:          100,
-			}),
-			widget.WidgetOpts.MinSize(50, 50),
-		),
-	)
-
-	innerContainer4 := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.NRGBA{0, 255, 255, 255})),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.MinSize(50, 50),
-		),
-	)
-
-	rootContainer.AddChild(
-		innerContainer1,
-		innerContainer2,
-		innerContainer3,
-		innerContainer4,
-	)
-
-	ui := ebitenui.UI{
-		Container: rootContainer,
-	}
+	rootContainer.AddChild(NewMenuBarWidget(), contentContainer, NewFooterWidget())
 
 	application := App{
-		ui: &ui,
+		ui: &ebitenui.UI{
+			Container: rootContainer,
+		},
 	}
 
 	return &application
