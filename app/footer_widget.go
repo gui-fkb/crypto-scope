@@ -10,48 +10,52 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type StatusBarWidget struct {
+type footerWidget struct {
 	*widget.Container
 
 	fpsLabel *widget.Text
 }
 
-func NewStatusBarWidget() *StatusBarWidget {
+func NewFooterWidget() *footerWidget {
 	container := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(
-			image.NewNineSliceColor(settings.PanelBackgroundColor),
+			image.NewNineSliceColor(settings.BackgroundColor2),
 		),
+
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout(
-			widget.AnchorLayoutOpts.Padding(widget.Insets{Left: int(settings.PanelPadding)}),
+			widget.AnchorLayoutOpts.Padding(widget.Insets{Left: int(12 * settings.Scale)}),
 		)),
+
 		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.MinSize(0, int(settings.AppFooterHeight)),
+			widget.WidgetOpts.MinSize(0, int(40*settings.Scale)),
 		),
 	)
+
 	fpsLabel := widget.NewText(
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				VerticalPosition:   widget.AnchorLayoutPositionCenter,
 				HorizontalPosition: widget.AnchorLayoutPositionStart,
+				VerticalPosition:   widget.AnchorLayoutPositionCenter,
 			}),
 		),
 		widget.TextOpts.Text("60", settings.FontSM, color.White),
 	)
+
 	container.AddChild(fpsLabel)
 
-	return &StatusBarWidget{
+	return &footerWidget{
 		Container: container,
 		fpsLabel:  fpsLabel,
 	}
 }
 
-func (w *StatusBarWidget) Render(screen *ebiten.Image) {
-	w.Container.Render(screen)
-
+func (w *footerWidget) Render(screen *ebiten.Image) {
 	fps := ebiten.ActualFPS()
 	w.fpsLabel.Label = fmt.Sprintf("FPS %d", int(fps))
+
+	w.Container.Render(screen)
 }
 
-func (w *StatusBarWidget) PreferredSize() (int, int) {
-	return 0, int(settings.AppFooterHeight)
+func (w *footerWidget) PreferredSize() (int, int) {
+	return 0, int(40 * settings.Scale)
 }

@@ -20,17 +20,9 @@ var (
 	OrderbookRed   = color.RGBA{52, 30, 39, 1}
 	OrderbookGreen = color.RGBA{27, 45, 43, 1}
 
-	// App
 	BackgroundColor  = Black
 	BackgroundColor2 = color.RGBA{23, 26, 32, 255}
 	BackgroundColor3 = color.RGBA{23, 26, 32, 0}
-
-	// App footer
-	AppFooterHeight          = 24 * Scale
-	AppFooterBackGroundColor = BackgroundColor2
-
-	PanelBackgroundColor = BackgroundColor2
-	PanelPadding         = 12 * Scale
 
 	FontSM   text.Face
 	FontBase text.Face
