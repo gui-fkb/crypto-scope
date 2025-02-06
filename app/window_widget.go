@@ -13,8 +13,10 @@ type windowWidget struct {
 }
 
 func NewWindowWidget(title string) *windowWidget {
+	var window windowWidget
+
 	// Construct window content
-	windowContent := widget.NewContainer(
+	windowContentWrapper := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(
 			image.NewNineSliceColor(settings.BackgroundColor),
 		),
@@ -23,17 +25,15 @@ func NewWindowWidget(title string) *windowWidget {
 		),
 	)
 
-	contentContainer := widget.NewContainer(
+	windowContent := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(
 			image.NewNineSliceColor(settings.BackgroundColor2),
 		),
-
 		widget.ContainerOpts.Layout(
 			widget.NewAnchorLayout(
 				widget.AnchorLayoutOpts.Padding(widget.Insets{Left: 2, Right: 2, Top: 2}),
 			),
 		),
-
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(
 				widget.AnchorLayoutData{
@@ -44,32 +44,28 @@ func NewWindowWidget(title string) *windowWidget {
 			),
 		),
 	)
-	windowContent.AddChild(contentContainer)
+	windowContentWrapper.AddChild(windowContent)
 
 	// Construct window title
-	windowTitle := widget.NewContainer(
+	windowTitleWrapper := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(
 			image.NewNineSliceColor(settings.BackgroundColor),
 		),
-
 		widget.ContainerOpts.Layout(
 			widget.NewAnchorLayout(),
 		),
-
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.MinSize(0, int(12*settings.Scale)),
 		),
 	)
 
-	titleContainer := widget.NewContainer(
+	windowTitle := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(
 			image.NewNineSliceColor(settings.BackgroundColor2),
 		),
-
 		widget.ContainerOpts.Layout(
 			widget.NewAnchorLayout(),
 		),
-
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(
 				widget.AnchorLayoutData{
@@ -83,9 +79,7 @@ func NewWindowWidget(title string) *windowWidget {
 
 	titleText := widget.NewText(
 		widget.TextOpts.Text(title, settings.FontBase, color.White),
-
 		widget.TextOpts.Insets(widget.Insets{Left: int(12 * settings.Scale)}),
-
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(
 				widget.AnchorLayoutData{
@@ -120,16 +114,21 @@ func NewWindowWidget(title string) *windowWidget {
 			Top:    1,
 			Bottom: 1,
 		}),
+		widget.ButtonOpts.ClickedHandler(
+			func(args *widget.ButtonClickedEventArgs) {
+				window.Close()
+			},
+		),
 	)
 
-	titleContainer.AddChild(titleText, titleCloseButton)
-	windowTitle.AddChild(titleContainer)
+	windowTitle.AddChild(titleText, titleCloseButton)
+	windowTitleWrapper.AddChild(windowTitle)
 
 	// Create and return the actual window widget
-	return &windowWidget{
+	window = windowWidget{
 		Window: widget.NewWindow(
-			widget.WindowOpts.TitleBar(windowTitle, int(36*settings.Scale)),
-			widget.WindowOpts.Contents(windowContent),
+			widget.WindowOpts.TitleBar(windowTitleWrapper, int(36*settings.Scale)),
+			widget.WindowOpts.Contents(windowContentWrapper),
 			widget.WindowOpts.Modal(),
 			widget.WindowOpts.Draggable(),
 			widget.WindowOpts.Resizeable(),
@@ -137,4 +136,6 @@ func NewWindowWidget(title string) *windowWidget {
 			widget.WindowOpts.MaxSize(400, 460),
 		),
 	}
+
+	return &window
 }
