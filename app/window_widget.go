@@ -12,7 +12,7 @@ type windowWidget struct {
 	*widget.Window
 }
 
-func NewWindowWidget(title string) *windowWidget {
+func NewWindowWidget(title string, contentContainer widget.PreferredSizeLocateableWidget) *windowWidget {
 	var window windowWidget
 
 	// Construct window content
@@ -20,30 +20,25 @@ func NewWindowWidget(title string) *windowWidget {
 		widget.ContainerOpts.BackgroundImage(
 			image.NewNineSliceColor(settings.BackgroundColor),
 		),
-		widget.ContainerOpts.Layout(
-			widget.NewAnchorLayout(),
-		),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Padding(widget.NewInsetsSimple(3)),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),
+		)),
 	)
 
 	windowContent := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(
 			image.NewNineSliceColor(settings.BackgroundColor2),
 		),
-		widget.ContainerOpts.Layout(
-			widget.NewAnchorLayout(
-				widget.AnchorLayoutOpts.Padding(widget.Insets{Left: 2, Right: 2, Top: 2}),
-			),
-		),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(
-				widget.AnchorLayoutData{
-					StretchHorizontal: true,
-					StretchVertical:   true,
-					Padding:           widget.NewInsetsSimple(3),
-				},
-			),
-		),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Padding(widget.NewInsetsSimple(6)),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),
+		)),
 	)
+
+	windowContent.AddChild(contentContainer)
 	windowContentWrapper.AddChild(windowContent)
 
 	// Construct window title
