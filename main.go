@@ -1,17 +1,19 @@
 package main
 
 import (
+	"crypto-scrope/actor"
 	"crypto-scrope/app"
-	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 func main() {
-	err := run()
-	if err != nil {
-		log.Fatalf("could not run the application: %v", err)
-	}
+	actor.RunActor()
+
+	// err := run()
+	// if err != nil {
+	// 	log.Fatalf("could not run the application: %v", err)
+	// }
 }
 
 func run() error {
