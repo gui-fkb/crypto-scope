@@ -2,6 +2,7 @@ package app
 
 import (
 	"crypto-scrope/settings"
+	"image/color"
 
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
@@ -18,11 +19,11 @@ type orderBookRowWidget struct {
 }
 
 func NewOrderBookWidget() *orderBookWidget {
-	rowCount := 15
+	rowCount := 14
 
 	container := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(
-			image.NewNineSliceColor(settings.BackgroundColor),
+			image.NewNineSliceColor(settings.BackgroundColor2),
 		),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -56,16 +57,16 @@ func NewOrderBookWidget() *orderBookWidget {
 
 func NewOrderBookRowWidget() *orderBookRowWidget {
 	container := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor)),
+		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor2)),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(3),
-			widget.GridLayoutOpts.Spacing(int(4*settings.Scale), int(10*settings.Scale)),
+			widget.GridLayoutOpts.Spacing(int(24*settings.Scale), int(10*settings.Scale)),
 			widget.GridLayoutOpts.Stretch([]bool{true, true, true}, []bool{true}),
 		)),
 	)
 
 	contentA := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.Red)),
+		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor2)),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(
@@ -77,9 +78,22 @@ func NewOrderBookRowWidget() *orderBookRowWidget {
 			widget.WidgetOpts.MinSize(0, int(22*settings.Scale)),
 		),
 	)
+
+	textA := widget.NewText(
+		widget.TextOpts.Text("....", settings.FontSM, color.White),
+		widget.TextOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(
+				widget.AnchorLayoutData{
+					HorizontalPosition: widget.AnchorLayoutPositionCenter,
+					VerticalPosition:   widget.AnchorLayoutPositionCenter,
+				},
+			),
+		),
+	)
+	contentA.AddChild(textA)
 
 	contentB := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.Red)),
+		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor2)),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(
@@ -92,8 +106,22 @@ func NewOrderBookRowWidget() *orderBookRowWidget {
 		),
 	)
 
+	textB := widget.NewText(
+		widget.TextOpts.Text("44.440", settings.FontSM, color.White),
+		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionStart),
+		widget.TextOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(
+				widget.AnchorLayoutData{
+					HorizontalPosition: widget.AnchorLayoutPositionCenter,
+					VerticalPosition:   widget.AnchorLayoutPositionCenter,
+				},
+			),
+		),
+	)
+	contentB.AddChild(textB)
+
 	contentC := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.Red)),
+		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor2)),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(
@@ -105,6 +133,20 @@ func NewOrderBookRowWidget() *orderBookRowWidget {
 			widget.WidgetOpts.MinSize(0, int(22*settings.Scale)),
 		),
 	)
+
+	textC := widget.NewText(
+		widget.TextOpts.Text("44.440", settings.FontSM, color.White),
+		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionStart),
+		widget.TextOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(
+				widget.AnchorLayoutData{
+					HorizontalPosition: widget.AnchorLayoutPositionCenter,
+					VerticalPosition:   widget.AnchorLayoutPositionCenter,
+				},
+			),
+		),
+	)
+	contentC.AddChild(textC)
 
 	container.AddChild(contentA, contentB, contentC)
 
