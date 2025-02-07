@@ -24,6 +24,10 @@ var (
 	BackgroundColor2 = color.RGBA{23, 26, 32, 255}
 	BackgroundColor3 = color.RGBA{23, 26, 32, 0}
 
+	BackgroundColor4 = color.RGBA{30, 33, 24, 1}
+	BackgroundColor5 = color.RGBA{45, 50, 35, 1}
+	BackgroundColor6 = color.RGBA{20, 22, 16, 1}
+
 	FontSM   text.Face
 	FontBase text.Face
 )
