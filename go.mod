@@ -14,6 +14,7 @@ require (
 	github.com/ebitenui/ebitenui v0.6.0 // indirect
 	github.com/go-text/typesetting v0.1.1-0.20240325125605-c7936fe59984 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grandcat/zeroconf v1.0.0 // indirect
 	github.com/hajimehoshi/ebiten/v2 v2.7.8 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
