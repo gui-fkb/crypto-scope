@@ -3,11 +3,25 @@ package main
 import (
 	"crypto-scrope/app"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/websocket"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/valyala/fastjson"
 )
+
+var ob OrderBook
+
+type OrderBook struct {
+	Bids []OrderBookData
+	Asks []OrderBookData
+}
+
+type OrderBookData struct {
+	Price    float64
+	Quantity float64
+}
 
 var symbols = []string{
 	"btcusdt",
@@ -23,13 +37,50 @@ func main() {
 	}
 
 	for {
-		msgType, bytes, err := conn.ReadMessage()
+		_, bytes, err := conn.ReadMessage()
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
 		}
 
-		fmt.Printf("msgType: %v - msg: %s\n", msgType, string(bytes))
+		//fmt.Printf("msgType: %v - msg: %s\n", msgType, string(bytes))
 
+		var p fastjson.Parser
+
+		v, err := p.ParseBytes(bytes)
+
+		data := v.Get("data")
+		stream := string(v.GetStringBytes("stream"))
+		lastUpdateId := data.GetUint("lastUpdateId")
+
+		fmt.Sprint("stream: %s, lastUpdateId: %d\n", stream, lastUpdateId)
+
+		bids := data.GetArray("bids")
+
+		var bidSlice []OrderBookData
+
+		for _, v := range bids {
+			price, err := strconv.ParseFloat(string(v.GetStringBytes("0")), 10)
+			if err != nil {
+				fmt.Println("error converting price to float")
+				break
+			}
+			quantity, err := strconv.ParseFloat(string(v.GetStringBytes("1")), 10)
+			if err != nil {
+				fmt.Println("error converting quantity to float")
+				break
+			}
+
+			obData := OrderBookData{
+				Price:    price,
+				Quantity: quantity,
+			}
+
+			bidSlice = append(bidSlice, obData)
+		}
+
+		ob.Bids = bidSlice
+
+		fmt.Printf("bids len: %v\n", ob.Bids)
 	}
 
 	// err := run()
