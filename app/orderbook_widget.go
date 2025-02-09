@@ -2,11 +2,25 @@ package app
 
 import (
 	"crypto-scrope/settings"
+	"fmt"
 	"image/color"
 
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 )
+
+var Ob OrderBook
+
+type OrderBook struct {
+	Bids []OrderBookData
+	Asks []OrderBookData
+}
+
+type OrderBookData struct {
+	Price    float64
+	Quantity float64
+}
 
 type orderBookWidget struct {
 	*widget.Container
@@ -16,6 +30,10 @@ type orderBookWidget struct {
 
 type orderBookRowWidget struct {
 	*widget.Container
+
+	price    *widget.Text
+	quantity *widget.Text
+	sum      *widget.Text
 }
 
 func NewOrderBookWidget() *orderBookWidget {
@@ -152,7 +170,42 @@ func NewOrderBookRowWidget() *orderBookRowWidget {
 
 	return &orderBookRowWidget{
 		Container: container,
+		price:     textA,
+		quantity:  textB,
+		sum:       textC,
 	}
+}
+
+func (w *orderBookWidget) Render(screen *ebiten.Image) {
+	for i, bid := range Ob.Bids {
+		if i > 6 {
+			break
+		}
+
+		w.rows[i].price.Label = fmt.Sprintf("%.2f", bid.Price)
+		w.rows[i].quantity.Label = fmt.Sprintf("%.5f", bid.Quantity)
+		w.rows[i].sum.Label = formatWithK(bid.Price * bid.Quantity)
+
+		w.rows[i].price.Color = settings.Green
+		w.rows[i].quantity.Color = settings.Green
+		w.rows[i].sum.Color = settings.Green
+	}
+
+	for i, ask := range Ob.Asks {
+		if i > 6 {
+			break
+		}
+
+		w.rows[i+7].price.Label = fmt.Sprintf("%.2f", ask.Price)
+		w.rows[i+7].quantity.Label = fmt.Sprintf("%.5f", ask.Quantity)
+		w.rows[i+7].sum.Label = formatWithK(ask.Price * ask.Quantity)
+
+		w.rows[i+7].price.Color = settings.Red
+		w.rows[i+7].quantity.Color = settings.Red
+		w.rows[i+7].sum.Color = settings.Red
+	}
+
+	w.Container.Render(screen)
 }
 
 func benerateBoolArray(length int, value bool) []bool {
@@ -161,4 +214,11 @@ func benerateBoolArray(length int, value bool) []bool {
 		result[i] = value
 	}
 	return result
+}
+
+func formatWithK(value float64) string {
+	if value >= 1000 {
+		return fmt.Sprintf("%.2fK", value/1000)
+	}
+	return fmt.Sprintf("%.3f", value)
 }
