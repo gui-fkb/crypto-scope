@@ -2,11 +2,25 @@ package app
 
 import (
 	"crypto-scrope/settings"
+	"fmt"
 	"image/color"
 
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 )
+
+var Ob OrderBook
+
+type OrderBook struct {
+	Bids []OrderBookData
+	Asks []OrderBookData
+}
+
+type OrderBookData struct {
+	Price    float64
+	Quantity float64
+}
 
 type orderBookWidget struct {
 	*widget.Container
@@ -16,6 +30,10 @@ type orderBookWidget struct {
 
 type orderBookRowWidget struct {
 	*widget.Container
+
+	price    *widget.Text
+	quantity *widget.Text
+	sum      *widget.Text
 }
 
 func NewOrderBookWidget() *orderBookWidget {
