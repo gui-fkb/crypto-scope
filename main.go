@@ -61,6 +61,7 @@ func main() {
 				obData := app.OrderBookData{
 					Price:    price,
 					Quantity: quantity,
+					Sum:      price * quantity,
 				}
 
 				bidSlice = append(bidSlice, obData)

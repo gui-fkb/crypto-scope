@@ -178,12 +178,13 @@ func (w *orderBookWidget) Render(screen *ebiten.Image) {
 		return
 	}
 
-	maxSum := slices.MaxFunc(Ob.Asks, func(a, b OrderBookData) int {
+	maxAskSum := slices.MaxFunc(Ob.Asks, func(a, b OrderBookData) int {
 		if a.Sum > b.Sum {
 			return 1
 		}
 		return -1
-	})
+	}).Sum
+
 	for i := range Ob.Asks {
 		if i > 6 {
 			break
@@ -199,23 +200,36 @@ func (w *orderBookWidget) Render(screen *ebiten.Image) {
 		w.rows[i].sum.Color = settings.Red
 
 		bgContainer := w.rows[i].Container
-		fillPerc := sum / maxSum.Sum
+		fillPerc := sum / maxAskSum
 
 		vector.DrawFilledRect(screen, float32(bgContainer.GetWidget().Rect.Min.X), float32(bgContainer.GetWidget().Rect.Min.Y), float32(bgContainer.GetWidget().Rect.Dx())*float32(fillPerc), float32(bgContainer.GetWidget().Rect.Dy()), settings.OrderbookRed, false)
 	}
+
+	maxBidSum := slices.MaxFunc(Ob.Bids, func(a, b OrderBookData) int {
+		if a.Sum > b.Sum {
+			return 1
+		}
+		return -1
+	}).Sum
 
 	for i, bid := range Ob.Bids {
 		if i > 6 {
 			break
 		}
 
+		sum := bid.Sum
 		w.rows[i+7].price.Label = fmt.Sprintf("%.2f", bid.Price)
 		w.rows[i+7].quantity.Label = fmt.Sprintf("%.5f", bid.Quantity)
-		w.rows[i+7].sum.Label = formatWithK(bid.Price * bid.Quantity)
+		w.rows[i+7].sum.Label = formatWithK(sum)
 
 		w.rows[i+7].price.Color = settings.Green
 		w.rows[i+7].quantity.Color = settings.Green
 		w.rows[i+7].sum.Color = settings.Green
+
+		bgContainer := w.rows[i+7].Container
+		fillPerc := sum / maxBidSum
+
+		vector.DrawFilledRect(screen, float32(bgContainer.GetWidget().Rect.Min.X), float32(bgContainer.GetWidget().Rect.Min.Y), float32(bgContainer.GetWidget().Rect.Dx())*float32(fillPerc), float32(bgContainer.GetWidget().Rect.Dy()), settings.OrderbookGreen, false)
 	}
 
 	w.Container.Render(screen)
