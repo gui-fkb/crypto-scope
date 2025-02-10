@@ -17,7 +17,7 @@ var (
 	Black          = color.RGBA{12, 14, 17, 255}
 	Red            = color.RGBA{246, 71, 93, 255}
 	Green          = color.RGBA{45, 189, 133, 255}
-	OrderbookRed   = color.RGBA{52, 30, 39, 1}
+	OrderbookRed   = color.RGBA{53, 20, 29, 255}
 	OrderbookGreen = color.RGBA{27, 45, 43, 1}
 
 	BackgroundColor  = Black

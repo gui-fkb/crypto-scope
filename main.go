@@ -81,6 +81,7 @@ func main() {
 				obData := app.OrderBookData{
 					Price:    price,
 					Quantity: quantity,
+					Sum:      price * quantity,
 				}
 
 				askSlice = append(askSlice, obData)

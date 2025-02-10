@@ -4,10 +4,12 @@ import (
 	"crypto-scrope/settings"
 	"fmt"
 	"image/color"
+	"slices"
 
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 var Ob OrderBook
@@ -20,6 +22,7 @@ type OrderBook struct {
 type OrderBookData struct {
 	Price    float64
 	Quantity float64
+	Sum      float64
 }
 
 type orderBookWidget struct {
@@ -40,9 +43,6 @@ func NewOrderBookWidget() *orderBookWidget {
 	rowCount := 14
 
 	container := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(
-			image.NewNineSliceColor(settings.BackgroundColor2),
-		),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
 			widget.GridLayoutOpts.Spacing(4, 4),
@@ -75,7 +75,7 @@ func NewOrderBookWidget() *orderBookWidget {
 
 func NewOrderBookRowWidget() *orderBookRowWidget {
 	container := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor2)),
+		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.Transparent)),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(3),
 			widget.GridLayoutOpts.Spacing(int(24*settings.Scale), int(10*settings.Scale)),
@@ -84,7 +84,6 @@ func NewOrderBookRowWidget() *orderBookRowWidget {
 	)
 
 	contentA := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor2)),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(
@@ -111,7 +110,6 @@ func NewOrderBookRowWidget() *orderBookRowWidget {
 	contentA.AddChild(textA)
 
 	contentB := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor2)),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(
@@ -139,7 +137,6 @@ func NewOrderBookRowWidget() *orderBookRowWidget {
 	contentB.AddChild(textB)
 
 	contentC := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(settings.BackgroundColor2)),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(
@@ -177,19 +174,34 @@ func NewOrderBookRowWidget() *orderBookRowWidget {
 }
 
 func (w *orderBookWidget) Render(screen *ebiten.Image) {
+	if len(Ob.Bids) == 0 || len(Ob.Asks) == 0 {
+		return
+	}
 
-	for i, _ := range Ob.Asks {
+	maxSum := slices.MaxFunc(Ob.Asks, func(a, b OrderBookData) int {
+		if a.Sum > b.Sum {
+			return 1
+		}
+		return -1
+	})
+	for i := range Ob.Asks {
 		if i > 6 {
 			break
 		}
 
+		sum := Ob.Asks[6-i].Sum
 		w.rows[i].price.Label = fmt.Sprintf("%.2f", Ob.Asks[6-i].Price)
 		w.rows[i].quantity.Label = fmt.Sprintf("%.5f", Ob.Asks[6-i].Quantity)
-		w.rows[i].sum.Label = formatWithK(Ob.Asks[7-i].Price * Ob.Asks[6-i].Quantity)
+		w.rows[i].sum.Label = formatWithK(sum)
 
 		w.rows[i].price.Color = settings.Red
 		w.rows[i].quantity.Color = settings.Red
 		w.rows[i].sum.Color = settings.Red
+
+		bgContainer := w.rows[i].Container
+		fillPerc := sum / maxSum.Sum
+
+		vector.DrawFilledRect(screen, float32(bgContainer.GetWidget().Rect.Min.X), float32(bgContainer.GetWidget().Rect.Min.Y), float32(bgContainer.GetWidget().Rect.Dx())*float32(fillPerc), float32(bgContainer.GetWidget().Rect.Dy()), settings.OrderbookRed, false)
 	}
 
 	for i, bid := range Ob.Bids {
