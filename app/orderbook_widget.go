@@ -1,6 +1,7 @@
 package app
 
 import (
+	"crypto-scrope/app/helper"
 	"crypto-scrope/settings"
 	"fmt"
 	"image/color"
@@ -46,7 +47,7 @@ func NewOrderBookWidget() *orderBookWidget {
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
 			widget.GridLayoutOpts.Spacing(4, 4),
-			widget.GridLayoutOpts.Stretch([]bool{true}, benerateBoolArray(rowCount, true)),
+			widget.GridLayoutOpts.Stretch([]bool{true}, helper.GenerateBoolArray(rowCount, true)),
 		)),
 
 		widget.ContainerOpts.WidgetOpts(
@@ -233,14 +234,6 @@ func (w *orderBookWidget) Render(screen *ebiten.Image) {
 	}
 
 	w.Container.Render(screen)
-}
-
-func benerateBoolArray(length int, value bool) []bool {
-	result := make([]bool, length)
-	for i := range result {
-		result[i] = value
-	}
-	return result
 }
 
 func formatWithK(value float64) string {

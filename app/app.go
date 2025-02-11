@@ -93,8 +93,12 @@ func (app *App) Update() error {
 
 func (app *App) createDefaultLayout() {
 	window := NewWindowWidget("binancef - btcustd", NewOrderBookWidget()).Window
+	window2 := NewWindowWidget("binancef - btcustd", NewTradeWidget()).Window
 
 	r := app.content.GetWidget().Rect
 	window.SetLocation(r)
 	app.ui.AddWindow(window)
+
+	window2.SetLocation(r)
+	app.ui.AddWindow(window2)
 }
