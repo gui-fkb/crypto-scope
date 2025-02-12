@@ -3,16 +3,28 @@ package app
 import (
 	"crypto-scrope/app/helper"
 	"crypto-scrope/settings"
+	"fmt"
 	"image/color"
+	"time"
 
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 )
+
+var MarketTrades []MarketTrade
+
+type MarketTrade struct {
+	Price    float64
+	Quantity float64
+	Time     time.Time
+}
 
 type tradeWidget struct {
 	*widget.Container
 
-	rows []*tradeRowWidget
+	rows  []*tradeRowWidget
+	flash *ebiten.Image
 }
 
 type tradeRowWidget struct {
