@@ -4,12 +4,15 @@ import (
 	"crypto-scrope/app"
 	"fmt"
 	"log"
+	"log/slog"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/valyala/fastjson"
+	"golang.org/x/exp/slices"
 )
 
 var symbols = []string{
@@ -32,62 +35,100 @@ func main() {
 				fmt.Printf("error: %v\n", err)
 			}
 
-			//fmt.Printf("msgType: %v - msg: %s\n", msgType, string(bytes))
-
 			var p fastjson.Parser
+			v, _ := p.ParseBytes(bytes)
 
-			v, err := p.ParseBytes(bytes)
+			stream := string(v.GetStringBytes("stream"))
 
-			data := v.Get("data")
+			if strings.Contains(stream, "depth") {
+				data := v.Get("data")
 
-			bids := data.GetArray("bids")
-			asks := data.GetArray("asks")
+				bids := data.GetArray("bids")
+				asks := data.GetArray("asks")
 
-			var bidSlice []app.OrderBookData
-			var askSlice []app.OrderBookData
+				var bidSlice []app.OrderBookData
+				var askSlice []app.OrderBookData
 
-			for _, v := range bids {
-				price, err := strconv.ParseFloat(string(v.GetStringBytes("0")), 10)
-				if err != nil {
-					fmt.Println("error converting price to float")
-					break
+				for _, v := range bids {
+					price, err := strconv.ParseFloat(string(v.GetStringBytes("0")), 10)
+					if err != nil {
+						fmt.Println("error converting price to float")
+						break
+					}
+					quantity, err := strconv.ParseFloat(string(v.GetStringBytes("1")), 10)
+					if err != nil {
+						fmt.Println("error converting quantity to float")
+						break
+					}
+
+					obData := app.OrderBookData{
+						Price:    price,
+						Quantity: quantity,
+						Sum:      price * quantity,
+					}
+
+					bidSlice = append(bidSlice, obData)
 				}
-				quantity, err := strconv.ParseFloat(string(v.GetStringBytes("1")), 10)
-				if err != nil {
-					fmt.Println("error converting quantity to float")
-					break
+
+				for _, v := range asks {
+					price, err := strconv.ParseFloat(string(v.GetStringBytes("0")), 10)
+					if err != nil {
+						fmt.Println("error converting price to float")
+						break
+					}
+					quantity, err := strconv.ParseFloat(string(v.GetStringBytes("1")), 10)
+					if err != nil {
+						fmt.Println("error converting quantity to float")
+						break
+					}
+
+					obData := app.OrderBookData{
+						Price:    price,
+						Quantity: quantity,
+						Sum:      price * quantity,
+					}
+
+					askSlice = append(askSlice, obData)
 				}
 
-				obData := app.OrderBookData{
-					Price:    price,
-					Quantity: quantity,
-				}
-
-				bidSlice = append(bidSlice, obData)
+				app.Ob.Bids = bidSlice
+				app.Ob.Asks = askSlice
 			}
 
-			for _, v := range asks {
-				price, err := strconv.ParseFloat(string(v.GetStringBytes("0")), 10)
+			if strings.Contains(stream, "aggTrade") {
+				data := v.Get("data")
+
+				eventTime := data.GetInt64("T")
+				price, err := strconv.ParseFloat(string(data.GetStringBytes("p")), 64)
 				if err != nil {
-					fmt.Println("error converting price to float")
-					break
-				}
-				quantity, err := strconv.ParseFloat(string(v.GetStringBytes("1")), 10)
-				if err != nil {
-					fmt.Println("error converting quantity to float")
-					break
+					slog.Error("error converting price to float")
 				}
 
-				obData := app.OrderBookData{
-					Price:    price,
-					Quantity: quantity,
+				time := time.Unix(eventTime/1000, 0)
+
+				quantity, err := strconv.ParseFloat(string(data.GetStringBytes("q")), 64)
+				if err != nil {
+					slog.Error("error converting quantity to float")
 				}
 
-				askSlice = append(askSlice, obData)
+				if len(app.MarketTrades) < 15 {
+					app.MarketTrades = append(app.MarketTrades, app.MarketTrade{
+						Price:    price,
+						Quantity: quantity,
+						Time:     time,
+					})
+				} else {
+					slices.Delete(app.MarketTrades, 0, 1)
+					slices.Insert(app.MarketTrades, 14, app.MarketTrade{
+						Price:    price,
+						Quantity: quantity,
+						Time:     time,
+					})
+				}
+
+				fmt.Printf("eventTime: %s, price: %f, quantity: %f\n", time.String(), price, quantity)
+				fmt.Printf("market trades: %v\n", len(app.MarketTrades))
 			}
-
-			app.Ob.Bids = bidSlice
-			app.Ob.Asks = askSlice
 		}
 	}()
 
@@ -116,6 +157,7 @@ func getWsSubscriptionStreamUrl() string {
 	var streamNames []string
 	for _, symbol := range symbols {
 		streamNames = append(streamNames, fmt.Sprintf("%s@depth20@100ms", symbol))
+		streamNames = append(streamNames, fmt.Sprintf("%s@aggTrade", symbol))
 	}
 
 	return fmt.Sprintf("%s/stream?streams=%s", wsBaseUrl, strings.Join(streamNames, "/"))

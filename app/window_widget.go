@@ -124,7 +124,6 @@ func NewWindowWidget(title string, contentContainer widget.PreferredSizeLocateab
 		Window: widget.NewWindow(
 			widget.WindowOpts.TitleBar(windowTitleWrapper, int(36*settings.Scale)),
 			widget.WindowOpts.Contents(windowContentWrapper),
-			widget.WindowOpts.Modal(),
 			widget.WindowOpts.Draggable(),
 			widget.WindowOpts.Resizeable(),
 			widget.WindowOpts.MinSize(200, 100),
