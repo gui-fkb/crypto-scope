@@ -7,8 +7,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-const wsBaseUrl = "wss://stream.binance.com:9443"
-
 func main() {
 	err := run()
 	if err != nil {
